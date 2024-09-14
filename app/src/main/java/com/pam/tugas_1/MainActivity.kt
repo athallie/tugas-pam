@@ -61,20 +61,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.opEqualsButton.setOnClickListener {
+            val exp = ExpressionBuilder(inputField
+                .text.toString()
+                .replace("÷", "/")
+                .replace("×", "*")
+            )
+                .build()
+            Log.d("MainActivity", "${exp.validate().isValid}")
             val result = try {
-                ExpressionBuilder(
-                    inputField.text.toString()
-                        .replace("÷", "/")
-                        .replace("×", "*")
-                )
-                    .build()
-                    .evaluate()
-                    .toString()
+                exp.evaluate().toString()
             } catch (e: ArithmeticException) {
                 "Illegal Division"
+            } catch (e: IllegalArgumentException) {
+                "Invalid Expression"
             }
             Log.d("MainActivity", "Result: $result")
-            inputField.text = if (result.equals("illegal division", true)) {result} else result
+            inputField.text = result
             isCalculated = true;
         }
         binding.clearButton.setOnClickListener {
