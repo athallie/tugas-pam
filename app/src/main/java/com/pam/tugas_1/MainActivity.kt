@@ -1,20 +1,21 @@
 package com.pam.tugas_1
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.RadioButton
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.pam.tugas_1.databinding.ActivityMainBinding
+import net.objecthunter.exp4j.ExpressionBuilder
+import java.math.BigDecimal
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -22,40 +23,62 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val showResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
-        binding.hitungButton.setOnClickListener {
-            val operand1 = binding.operand1.text?.toString()?.toDoubleOrNull()
-            val operand2 = binding.operand2.text?.toString()?.toDoubleOrNull()
-            val operator = findViewById<RadioButton>(binding.operatorsRadioGroup.checkedRadioButtonId)?.text.toString()
-            val result: Double? = calculate(
-                operand1,
-                operand2,
-                operator,
-            )
-            if (result != null) {
-                showResult.launch(
-                    Intent(this, ResultActivity::class.java).apply {
-                        action = Intent.ACTION_SEND
-                        putExtra("Result", result.toString())
-                        putExtra("Operand 1", operand1.toString())
-                        putExtra("Operand 2", operand2.toString())
-                        putExtra("Operator", operator)
-                    }
-                )
-            }
-        }
-    }
 
-    private fun calculate(operand1: Double?, operand2: Double?, operator: String): Double? {
-        if (operand1 != null && operand2 != null && operator != "null") {
-            when(operator) {
-                "+" -> return operand1 + operand2
-                "-" -> return operand1 - operand2
-                "*" -> return operand1 * operand2
-                "/" -> return operand1 / operand2
+        val inputField = binding.field
+        var isCalculated = false;
+
+        val buttons = listOf(
+            binding.num0Button,
+            binding.num1Button,
+            binding.num2Button,
+            binding.num3Button,
+            binding.num4Button,
+            binding.num5Button,
+            binding.num6Button,
+            binding.num7Button,
+            binding.num8Button,
+            binding.num9Button,
+            binding.opAddButton,
+            binding.opSubtractButton,
+            binding.opDivideButton,
+            binding.opMultiplyButton,
+            binding.opDecimalButton
+        )
+
+        /*
+            Athallah Naufal Rismaputra Awwaliyyah
+            225150407111070
+        */
+
+        buttons.forEach { button ->
+            button.setOnClickListener {
+                if (isCalculated) {
+                    inputField.text = ""
+                    isCalculated = false;
+                }
+                inputField.append(button.text.toString())
             }
         }
-        Toast.makeText(this, "Operand atau operator tidak valid", Toast.LENGTH_SHORT).show()
-        return null
+
+        binding.opEqualsButton.setOnClickListener {
+            val result = try {
+                ExpressionBuilder(
+                    inputField.text.toString()
+                        .replace("÷", "/")
+                        .replace("×", "*")
+                )
+                    .build()
+                    .evaluate()
+                    .toString()
+            } catch (e: ArithmeticException) {
+                "Illegal Division"
+            }
+            Log.d("MainActivity", "Result: $result")
+            inputField.text = if (result.equals("illegal division", true)) {result} else result
+            isCalculated = true;
+        }
+        binding.clearButton.setOnClickListener {
+            inputField.text = "";
+        }
     }
 }

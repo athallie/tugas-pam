@@ -1,13 +1,5 @@
 <resources>
-    <string name="app_name">tugas-1</string>
-    <string name="operand_hint_1">Operand 1</string>
-    <string name="operand_hint_2">Operand 2</string>
-    <string name="operator_addition">+</string>
-    <string name="operator_substraction">-</string>
-    <string name="operator_multiplication">*</string>
-    <string name="operator_division">/</string>
-    <string name="hitung_button">Hitung</string>
+    <string name="app_name">Kalkulator</string>
     <string name="nama_text">Athallah Naufal Rismaputra Awwaliyyah</string>
-    <string name="nim_text">225150407111070</string>
-    <string name="back_button">Kembali</string>
+    <string name="nim_text">by 225150407111070</string>
 </resources>
