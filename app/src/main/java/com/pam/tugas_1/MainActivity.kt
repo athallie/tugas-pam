@@ -59,8 +59,9 @@ class MainActivity : AppCompatActivity() {
             mhs.nim = binding.nimEdittext.text.toString()
             binding.namaEdittext.text?.clear()
             binding.nimEdittext.text?.clear()
-            mahasiswaList.add(mhs)
-            mahasiswaAdapter.notifyItemInserted(mahasiswaList.size - 1)
+            mahasiswaList.add(0, mhs)
+            mahasiswaAdapter.notifyItemInserted(0)
+            recyclerView.smoothScrollToPosition(0)
             binding.root.hideKeyboard(binding.root)
         }
 
