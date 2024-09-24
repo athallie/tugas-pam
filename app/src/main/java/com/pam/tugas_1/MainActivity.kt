@@ -1,15 +1,18 @@
 package com.pam.tugas_1
 
+import android.app.Activity
 import android.os.Bundle
-import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pam.tugas_1.databinding.ActivityMainBinding
-import net.objecthunter.exp4j.ExpressionBuilder
-import java.math.BigDecimal
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,63 +27,51 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val inputField = binding.field
-        var isCalculated = false;
+        var mhs = Mahasiswa()
+        mhs.nama = "Athallah Naufal Rismaputra Awwaliyyah"
+        mhs.nim = "225150407111070"
+        val mahasiswaList = mutableListOf(mhs)
+        for (i in 1..10) {
+            val nameString = ('A'..'Z').toMutableList()
+            nameString.add(' ')
+            nameString.joinToString(separator = "")
+            mhs = Mahasiswa()
+            mhs.nama = ""
+            mhs.nim = ""
+            for (j in 1..20) {
+                mhs.nama += nameString.random()
+            }
+            val nimString = (0..9).toList().joinToString(separator = "")
+            for (j in 1..15) {
+                mhs.nim += nimString.random()
+            }
+            mahasiswaList.add(mhs)
+        }
+        val mahasiswaAdapter = MahasiswaAdapter(mahasiswaList)
 
-        val buttons = listOf(
-            binding.num0Button,
-            binding.num1Button,
-            binding.num2Button,
-            binding.num3Button,
-            binding.num4Button,
-            binding.num5Button,
-            binding.num6Button,
-            binding.num7Button,
-            binding.num8Button,
-            binding.num9Button,
-            binding.opAddButton,
-            binding.opSubtractButton,
-            binding.opDivideButton,
-            binding.opMultiplyButton,
-            binding.opDecimalButton
-        )
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = mahasiswaAdapter
+
+        binding.addButton.setOnClickListener {
+            mhs = Mahasiswa()
+            mhs.nama = binding.namaEdittext.text.toString();
+            mhs.nim = binding.nimEdittext.text.toString()
+            binding.namaEdittext.text?.clear()
+            binding.nimEdittext.text?.clear()
+            mahasiswaList.add(mhs)
+            mahasiswaAdapter.notifyItemInserted(mahasiswaList.size - 1)
+            binding.root.hideKeyboard(binding.root)
+        }
 
         /*
             Athallah Naufal Rismaputra Awwaliyyah
             225150407111070
         */
+    }
 
-        buttons.forEach { button ->
-            button.setOnClickListener {
-                if (isCalculated) {
-                    inputField.text = ""
-                    isCalculated = false;
-                }
-                inputField.append(button.text.toString())
-            }
-        }
-
-        binding.opEqualsButton.setOnClickListener {
-            val exp = ExpressionBuilder(inputField
-                .text.toString()
-                .replace("÷", "/")
-                .replace("×", "*")
-            )
-                .build()
-            Log.d("MainActivity", "${exp.validate().isValid}")
-            val result = try {
-                exp.evaluate().toString()
-            } catch (e: ArithmeticException) {
-                "Illegal Division"
-            } catch (e: IllegalArgumentException) {
-                "Invalid Expression"
-            }
-            Log.d("MainActivity", "Result: $result")
-            inputField.text = result
-            isCalculated = true;
-        }
-        binding.clearButton.setOnClickListener {
-            inputField.text = "";
-        }
+    fun View.hideKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
