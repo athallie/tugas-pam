@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class MahasiswaAdapter(private val dataSet: MutableList<Mahasiswa>) : RecyclerView.Adapter<MahasiswaAdapter.ViewHolder>() {
+class MahasiswaAdapter(private var dataSet: List<Mahasiswa>) : RecyclerView.Adapter<MahasiswaAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater
             .from(parent.context)
@@ -29,5 +29,10 @@ class MahasiswaAdapter(private val dataSet: MutableList<Mahasiswa>) : RecyclerVi
             nama = view.findViewById(R.id.nama_textview)
             nim = view.findViewById(R.id.nim_textview)
         }
+    }
+
+    fun updateMahasiswa(dataSet: List<Mahasiswa>) {
+        this.dataSet = dataSet
+        notifyDataSetChanged()
     }
 }

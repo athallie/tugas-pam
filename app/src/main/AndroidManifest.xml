@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Tugas1"
         tools:targetApi="31">
         <activity
+            android:name=".AddMahasiswa"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -22,8 +25,5 @@
             </intent-filter>
         </activity>
     </application>
-    <!--
-        Athallah Naufal Rismaputra Awwaliyyah
-        225150407111070
-    -->
+
 </manifest>

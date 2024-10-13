@@ -1,18 +1,28 @@
 package com.pam.tugas_1
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.pam.tugas_1.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,52 +37,43 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        var mhs = Mahasiswa()
-        mhs.nama = "Athallah Naufal Rismaputra Awwaliyyah"
-        mhs.nim = "225150407111070"
-        val mahasiswaList = mutableListOf(mhs)
-        for (i in 1..10) {
-            val nameString = ('A'..'Z').toMutableList()
-            nameString.add(' ')
-            nameString.joinToString(separator = "")
-            mhs = Mahasiswa()
-            mhs.nama = ""
-            mhs.nim = ""
-            for (j in 1..20) {
-                mhs.nama += nameString.random()
-            }
-            val nimString = (0..9).toList().joinToString(separator = "")
-            for (j in 1..15) {
-                mhs.nim += nimString.random()
-            }
-            mahasiswaList.add(mhs)
-        }
-        val mahasiswaAdapter = MahasiswaAdapter(mahasiswaList)
-
+        val mahasiswaAdapter = MahasiswaAdapter(emptyList())
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = mahasiswaAdapter
 
-        binding.addButton.setOnClickListener {
-            mhs = Mahasiswa()
-            mhs.nama = binding.namaEdittext.text.toString();
-            mhs.nim = binding.nimEdittext.text.toString()
-            binding.namaEdittext.text?.clear()
-            binding.nimEdittext.text?.clear()
-            mahasiswaList.add(0, mhs)
-            mahasiswaAdapter.notifyItemInserted(0)
-            recyclerView.smoothScrollToPosition(0)
-            binding.root.hideKeyboard(binding.root)
+        val mahasiswaDao = AppDatabase.getDatabase(applicationContext).mahasiswaDao()
+        lifecycleScope.launch {
+            mahasiswaAdapter.updateMahasiswa(mahasiswaDao.getAll())
         }
-
         /*
             Athallah Naufal Rismaputra Awwaliyyah
             225150407111070
         */
-    }
 
-    fun View.hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        val addMahasiswa = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result: ActivityResult ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    result.data?.let { data ->
+                        val mhs = Mahasiswa(
+                            data.getStringExtra("nim").toString(),
+                            data.getStringExtra("nama")
+                        )
+                        mhs.nama?.let { Log.d("TAG", it) }
+                         lifecycleScope.launch{
+                             mahasiswaDao.insertAll(mhs)
+                             mahasiswaAdapter.updateMahasiswa(mahasiswaDao.getAll())
+                         }
+                        recyclerView.smoothScrollToPosition(0)
+                    }
+                }
+        }
+        binding.addFab.setOnClickListener {
+            addMahasiswa.launch(
+                Intent(this, AddMahasiswa::class.java).apply {
+                    action = Intent.ACTION_SEND
+                }
+            )
+        }
     }
 }
