@@ -3,6 +3,7 @@ package com.pam.tugas_1
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.enableEdgeToEdge
@@ -26,15 +27,23 @@ class AddMahasiswa : AppCompatActivity() {
         }
 
         binding.addButton.setOnClickListener {
-            val nama = binding.namaEdittext.text.toString()
-            val nim = binding.nimEdittext.text.toString()
-            setResult(
-                Activity.RESULT_OK,
-                Intent()
-                    .putExtra("nama", nama)
-                    .putExtra("nim", nim)
-            )
-            finish()
+            val namaField = binding.namaEdittext
+            val nimField = binding.nimEdittext
+            if (TextUtils.isEmpty(namaField.text)) {
+                namaField.error = "Nama tidak boleh kosong!"
+            } else if (TextUtils.isEmpty(nimField.text)) {
+                nimField.error = "NIM tidak boleh kosong!"
+            } else {
+                val nama = binding.namaEdittext.text.toString()
+                val nim = binding.nimEdittext.text.toString()
+                setResult(
+                    Activity.RESULT_OK,
+                    Intent()
+                        .putExtra("nama", nama)
+                        .putExtra("nim", nim)
+                )
+                finish()
+            }
         }
     }
 }

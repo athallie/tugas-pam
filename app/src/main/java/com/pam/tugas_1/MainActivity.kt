@@ -31,11 +31,6 @@ class MainActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         val mahasiswaAdapter = MahasiswaAdapter(emptyList())
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
@@ -68,12 +63,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
         }
-        binding.addFab.setOnClickListener {
+        binding.bottomNavigation.setOnItemSelectedListener {
             addMahasiswa.launch(
                 Intent(this, AddMahasiswa::class.java).apply {
                     action = Intent.ACTION_SEND
                 }
             )
+            true
         }
     }
 }
